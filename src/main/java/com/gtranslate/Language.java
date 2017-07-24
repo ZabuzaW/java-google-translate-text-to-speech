@@ -14,6 +14,8 @@ public class Language {
 	public static final String BULGARIAN = "bg";
 	public static final String CATALAN = "ca";
 	public static final String CHINESE = "zh-CN";
+	public static final String CHINESE_SIMPLIFIED = "zh-CN";
+	public static final String CHINESE_TRADITIONAL = "zh-TW";
 	public static final String CROATIAN = "hr";
 	public static final String CZECH = "cs";
 	public static final String DANISH = "da";
@@ -66,9 +68,15 @@ public class Language {
 	public static final String VIETNAMESE = "vi";
 	public static final String WELSH = "cy";
 	public static final String YIDDISH = "yi";
-	public static final String CHINESE_SIMPLIFIED = "zh-CN";
-	public static final String CHINESE_TRADITIONAL = "zh-TW";
 	private static Language language;
+
+	public synchronized static Language getInstance() {
+		if (language == null) {
+			language = new Language();
+		}
+		return language;
+	}
+
 	private HashMap<String, String> hashLanguage;
 
 	private Language() {
@@ -76,11 +84,15 @@ public class Language {
 		init();
 	}
 
-	public synchronized static Language getInstance() {
-		if (language == null) {
-			language = new Language();
-		}
-		return language;
+	public String getNameLanguage(String prefixLanguage) {
+		return hashLanguage.get(prefixLanguage);
+	}
+
+	public String getNameLanguage(String prefixLanguage, String outputLanguage) {
+
+		Translator translate = Translator.getInstance();
+		return translate.translate(hashLanguage.get(prefixLanguage), prefixLanguage, outputLanguage);
+
 	}
 
 	private void init() {
@@ -210,17 +222,5 @@ public class Language {
 		hashLanguage.put("vi", "VIETNAMESE");
 		hashLanguage.put("cy", "WELSH");
 		hashLanguage.put("yi", "YIDDISH");
-	}
-
-	public String getNameLanguage(String prefixLanguage) {
-		return hashLanguage.get(prefixLanguage);
-	}
-
-	public String getNameLanguage(String prefixLanguage, String outputLanguage) {
-
-		Translator translate = Translator.getInstance();
-		return translate.translate(hashLanguage.get(prefixLanguage),
-				prefixLanguage, outputLanguage);
-
 	}
 }

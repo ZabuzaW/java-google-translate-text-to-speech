@@ -19,10 +19,8 @@ public class WebUtils {
 		try {
 			url = new URL(urlSite);
 			urlConn = url.openConnection();
-			urlConn.addRequestProperty("User-Agent",
-					"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-			Reader reader = new InputStreamReader(urlConn.getInputStream(),
-					"utf-8");
+			urlConn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+			Reader reader = new InputStreamReader(urlConn.getInputStream(), "utf-8");
 			BufferedReader br = new BufferedReader(reader);
 
 			int byteRead;

@@ -5,46 +5,53 @@ import com.gtranslate.URLCONSTANTS;
 import com.gtranslate.text.Text;
 import com.gtranslate.text.TextTranslate;
 import com.gtranslate.utils.WebUtils;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class ParseTextTranslate implements Parse {
-    private TextTranslate textTranslate;
-    private StringBuilder url;
-    private Gson gson;
+	private Gson gson;
+	private TextTranslate textTranslate;
+	private StringBuilder url;
 
-    public ParseTextTranslate(TextTranslate textTranslate) {
-        this.textTranslate = textTranslate;
-        this.gson = new Gson();
-    }
+	public ParseTextTranslate(TextTranslate textTranslate) {
+		this.textTranslate = textTranslate;
+		this.gson = new Gson();
+	}
 
-    @Override
-    public void parse() {
-        appendURL();
-        String result = WebUtils.source(url.toString());
+	@Override
+	public void appendURL() {
+		Text input = textTranslate.getInput();
+		Text output = textTranslate.getOutput();
+		url = new StringBuilder(URLCONSTANTS.GOOGLE_TRANSLATE_TEXT);
+		url.append("q=" + input.getText().replace(" ", "%20"));
+		url.append("&oe=UTF-8");
+		url.append("&tl=" + output.getLanguage());
+		url.append("&client=gtx");
+		url.append("&sl=" + input.getLanguage());
+		url.append("&dt=t");
+	}
 
-        Map map = gson.fromJson(result, Map.class);
-        String translation = (String) ((Map) ((List) map.get("sentences")).get(0)).get("trans");
+	public TextTranslate getTextTranslate() {
+		return textTranslate;
+	}
 
-        Text output = textTranslate.getOutput();
-        output.setText(translation);
-    }
+	@Override
+	public void parse() {
+		appendURL();
+		String result = WebUtils.source(url.toString());
 
-    public TextTranslate getTextTranslate() {
-        return textTranslate;
-    }
+		@SuppressWarnings("unchecked")
+		ArrayList<ArrayList<ArrayList<String>>> map = gson.fromJson(result, ArrayList.class);
+		StringBuilder translation = new StringBuilder();
+		for (ArrayList<String> sentenceData : map.get(0)) {
+			translation.append(sentenceData.get(0));
+		}
+		Text output = textTranslate.getOutput();
 
-    @Override
-    public void appendURL() {
-        Text input = textTranslate.getInput();
-        Text output = textTranslate.getOutput();
-        url = new StringBuilder(URLCONSTANTS.GOOGLE_TRANSLATE_TEXT);
-        url.append("text=" + input.getText().replace(" ", "%20"));
-        url.append("&oe=UTF-8");
-        url.append("&tl=" + output.getLanguage());
-        url.append("&client=z");
-        url.append("&sl=" + input.getLanguage());
-
-    }
+		output.setText(translation.toString());
+	}
 }
